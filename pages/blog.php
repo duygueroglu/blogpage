@@ -10,6 +10,8 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
+    <title>Blog Yazıları</title>
+
     <!-- Bootstrap Core CSS -->
     <link href="../bower_components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
 
@@ -38,6 +40,39 @@
 </head>
 
 <body>
+
+<?php
+//Aktiflik değiştirme
+$id = intval(@$_GET["id"]);
+if(@$_GET["is"]=="aktif"){
+
+    if($_GET["drm"]==1){
+        $durum=0;
+    } else {
+        $durum=1;
+    }
+    $aktif = $db->prepare("UPDATE `blog` SET `aktif` = :a WHERE `id` = :i ");
+    $aktif->bindValue(":a", $durum, PDO::PARAM_INT);
+    $aktif->bindValue(":i", $id, PDO::PARAM_INT);
+    if($aktif->execute()){
+        header("Location: blog.php?i=ekle");
+    } else {
+        header("Location: blog.php?i=hata");
+    } 
+}
+
+if(@$_GET[is]=="sil"){
+    $sil = $db->prepare("DELETE FROM `blog` WHERE `id` = :i");
+    $sil->bindValue(":i", $id, PDO::PARAM_INT);
+    if($sil->execute()){
+        header("Location: blog.php?i=ekle");
+    } else {
+        header("Location: blog.php?i=hata");
+    }
+}
+
+
+?>
 
     <div id="wrapper">
 
@@ -89,17 +124,16 @@
                                             <td><?= $row["tarih"] ?></td>
                                             <td class="center">
                                             <?php if($row["aktif"] == 1) { ?>
-                                            <a href="blog.php?durum=aktif&id=<?= $row["id"] ?>" onclick="return confirm('Aktiflik durumunu değişsin mi?')" 
-                                            class="btn btn-danger btn-xs" style="margin-right = 15px;">
+                                            <a href="blog.php?is=aktif&id=<?= $row["id"] ?>&drm=<?= $row["aktif"] ?>" onclick="return confirm('Aktiflik durumunu değişsin mi?')" 
+                                            class="btn btn-success btn-xs" style="margin-right = 15px;">Aktif</a>
                                             <?php } else { ?>
-                                            <a href="blog.php?durum=aktif&id=<?= $row["id"] ?>" onclick="return confirm('Aktiflik durumunu değişsin mi?')" 
-                                            class="btn btn-danger btn-xs" style="margin-right = 15px;">
+                                            <a href="blog.php?is=aktif&id=<?= $row["id"] ?>&drm=<?= $row["aktif"] ?>" onclick="return confirm('Aktiflik durumunu değişsin mi?')" 
+                                            class="btn btn-danger btn-xs" style="margin-right = 15px;">Pasif</a>
                                             <?php } ?>
-                                            </a>
-                                                <?= $row["aktif"] ?></td>
+                                           </td>
                                             <td class="center">
-                                            <a href="blog_duzenle.php?i=<?= $row["id"] ?>" class="btn btn-warning btn-xs" style="margin-right = 15px;">Düzenle</a>
-                                            <a href="blog.php?yazi=sil&id=<?= $row["id"] ?>" onclick="return confirm('Silmek istediğinize emin misiniz?')" class="btn btn-danger btn-xs" style="margin-right = 15px;">Sil</a>
+                                            <a href="blog_duzenle.php?id=<?= $row["id"] ?>" class="btn btn-warning btn-xs" style="margin-right = 15px;">Düzenle</a>
+                                            <a href="blog.php?is=sil&id=<?= $row["id"] ?>" onclick="return confirm('Silmek istediğinize emin misiniz?')" class="btn btn-danger btn-xs" style="margin-right = 15px;">Sil</a>
                                             </td>
                                         </tr>
                                     <?php } ?>
